@@ -99,21 +99,27 @@ class _AmirAnimatedBackgroundState extends State<AmirAnimatedBackground>
   }
 
   Widget _orb({required double dx, required double dy, required double size, required Color color}) {
-    return LayoutBuilder(builder: (ctx, c) {
-      return Positioned(
-        left: c.maxWidth * dx - size / 2,
-        top: c.maxHeight * dy - size / 2,
-        child: IgnorePointer(
-          child: Container(
-            width: size,
-            height: size,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: RadialGradient(colors: [color, color.withValues(alpha: 0)]),
+    return Positioned.fill(
+      child: LayoutBuilder(builder: (ctx, c) {
+        return Stack(
+          children: [
+            Positioned(
+              left: c.maxWidth * dx - size / 2,
+              top: c.maxHeight * dy - size / 2,
+              width: size,
+              height: size,
+              child: IgnorePointer(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: RadialGradient(colors: [color, color.withValues(alpha: 0)]),
+                  ),
+                ),
+              ),
             ),
-          ),
-        ),
-      );
-    });
+          ],
+        );
+      }),
+    );
   }
 }
