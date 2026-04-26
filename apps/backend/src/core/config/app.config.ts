@@ -116,7 +116,11 @@ export class AppConfig {
 
   get cors() {
     const raw = this.cs.get<string>('CORS_ORIGINS', '');
-    return { origins: raw.split(',').map((s) => s.trim()).filter(Boolean) };
+    const list = raw.split(',').map((s) => s.trim()).filter(Boolean);
+    if (list.length === 0 || list.includes('*')) {
+      return { origins: true as const };
+    }
+    return { origins: list };
   }
 
   get logLevel(): string { return this.cs.get<string>('LOG_LEVEL', 'info'); }
