@@ -5,6 +5,7 @@ import 'dart:math' as math;
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
+import '../../design_system/components/amir_glass_card.dart';
 import '../../design_system/tokens/theme.dart';
 
 class DashboardPage extends StatelessWidget {
@@ -18,6 +19,8 @@ class DashboardPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          const _LiveStatusBar(),
+          const SizedBox(height: AmirSpacing.md),
           _Header(),
           const SizedBox(height: AmirSpacing.lg),
           _KpiGrid(wide: wide),
@@ -129,13 +132,26 @@ class _Header extends StatelessWidget {
 }
 
 class _Kpi {
-  const _Kpi(this.title, this.value, this.delta, this.up, this.icon, this.gradient);
+  const _Kpi(
+    this.title,
+    this.numeric,
+    this.delta,
+    this.up,
+    this.icon,
+    this.gradient, {
+    this.prefix = '',
+    this.suffix = '',
+    this.fractionDigits = 0,
+  });
   final String title;
-  final String value;
+  final double numeric;
   final String delta;
   final bool up;
   final IconData icon;
   final Gradient gradient;
+  final String prefix;
+  final String suffix;
+  final int fractionDigits;
 }
 
 class _KpiGrid extends StatelessWidget {
@@ -145,12 +161,12 @@ class _KpiGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const items = [
-      _Kpi('Revenue (MTD)', '\$ 124,500', '+12.4%', true, Icons.trending_up_rounded, AmirGradients.brand),
-      _Kpi('Open Invoices', '32', '-3', true, Icons.receipt_long_rounded, AmirGradients.success),
-      _Kpi('Active Orders', '17', '+5', true, Icons.shopping_cart_rounded, AmirGradients.brandSoft),
-      _Kpi('Inventory Value', '\$ 412,890', '+2.1%', true, Icons.inventory_rounded, AmirGradients.accent),
-      _Kpi('POS Sessions', '3', 'live', true, Icons.point_of_sale_rounded, AmirGradients.brand),
-      _Kpi('Employees', '48', '+2', true, Icons.groups_rounded, AmirGradients.success),
+      _Kpi('REVENUE · MTD', 124500, '+12.4%', true, Icons.trending_up_rounded, AmirGradients.brand, prefix: '\$ '),
+      _Kpi('OPEN INVOICES', 32, '-3', true, Icons.receipt_long_rounded, AmirGradients.success),
+      _Kpi('ACTIVE ORDERS', 17, '+5', true, Icons.shopping_cart_rounded, AmirGradients.brandSoft),
+      _Kpi('INVENTORY VALUE', 412890, '+2.1%', true, Icons.inventory_rounded, AmirGradients.accent, prefix: '\$ '),
+      _Kpi('POS SESSIONS', 3, 'LIVE', true, Icons.point_of_sale_rounded, AmirGradients.brand),
+      _Kpi('EMPLOYEES', 48, '+2', true, Icons.groups_rounded, AmirGradients.success),
     ];
     final cols = wide ? 4 : MediaQuery.of(context).size.width > 700 ? 3 : 2;
     return LayoutBuilder(builder: (_, c) {
@@ -167,66 +183,124 @@ class _KpiGrid extends StatelessWidget {
   }
 }
 
-class _KpiCard extends StatelessWidget {
+class _KpiCard extends StatefulWidget {
   const _KpiCard({required this.k});
   final _Kpi k;
+  @override
+  State<_KpiCard> createState() => _KpiCardState();
+}
 
+class _KpiCardState extends State<_KpiCard> {
+  bool _hover = false;
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(AmirSpacing.md),
-      decoration: BoxDecoration(
-        color: AmirColors.card,
-        borderRadius: BorderRadius.circular(AmirRadius.lg),
-        border: Border.all(color: AmirColors.stroke),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 38, height: 38,
-                decoration: BoxDecoration(
-                  gradient: k.gradient,
-                  borderRadius: BorderRadius.circular(AmirRadius.sm),
-                ),
-                child: Icon(k.icon, color: Colors.white, size: 18),
-              ),
-              const Spacer(),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: (k.up ? AmirColors.success : AmirColors.danger).withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(AmirRadius.pill),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      k.up ? Icons.arrow_upward_rounded : Icons.arrow_downward_rounded,
-                      size: 11, color: k.up ? AmirColors.success : AmirColors.danger,
-                    ),
-                    const SizedBox(width: 3),
-                    Text(k.delta,
-                        style: TextStyle(
-                          color: k.up ? AmirColors.success : AmirColors.danger,
-                          fontSize: 10.5, fontWeight: FontWeight.w700,
-                        )),
-                  ],
-                ),
-              ),
-            ],
+    final k = widget.k;
+    return MouseRegion(
+      onEnter: (_) => setState(() => _hover = true),
+      onExit: (_) => setState(() => _hover = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 220),
+        curve: Curves.easeOutCubic,
+        transform: Matrix4.identity()..translate(0.0, _hover ? -3.0 : 0.0),
+        padding: const EdgeInsets.all(AmirSpacing.md),
+        decoration: BoxDecoration(
+          color: AmirColors.card,
+          borderRadius: BorderRadius.circular(AmirRadius.lg),
+          border: Border.all(
+            color: _hover ? AmirColors.primary.withValues(alpha: 0.55) : AmirColors.stroke,
           ),
-          const SizedBox(height: 18),
-          Text(k.title,
-              style: TextStyle(color: AmirColors.muted.withValues(alpha: 0.9), fontSize: 12, fontWeight: FontWeight.w500)),
-          const SizedBox(height: 4),
-          Text(k.value,
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, letterSpacing: -0.5)),
-          const SizedBox(height: 12),
-          SizedBox(height: 36, child: _Sparkline(seed: k.title.hashCode, gradient: k.gradient)),
-        ],
+          boxShadow: _hover
+              ? [
+                  BoxShadow(
+                    color: AmirColors.primary.withValues(alpha: 0.28),
+                    blurRadius: 22,
+                    spreadRadius: -6,
+                    offset: const Offset(0, 12),
+                  ),
+                ]
+              : null,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 38, height: 38,
+                  decoration: BoxDecoration(
+                    gradient: k.gradient,
+                    borderRadius: BorderRadius.circular(AmirRadius.sm),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AmirColors.primary.withValues(alpha: 0.45),
+                        blurRadius: 14,
+                        spreadRadius: -4,
+                      ),
+                    ],
+                  ),
+                  child: Icon(k.icon, color: Colors.white, size: 18),
+                ),
+                const Spacer(),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: (k.up ? AmirColors.success : AmirColors.danger).withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(AmirRadius.pill),
+                    border: Border.all(
+                      color: (k.up ? AmirColors.success : AmirColors.danger).withValues(alpha: 0.35),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        k.up ? Icons.arrow_upward_rounded : Icons.arrow_downward_rounded,
+                        size: 11, color: k.up ? AmirColors.success : AmirColors.danger,
+                      ),
+                      const SizedBox(width: 3),
+                      Text(k.delta,
+                          style: TextStyle(
+                            color: k.up ? AmirColors.success : AmirColors.danger,
+                            fontSize: 10.5, fontWeight: FontWeight.w700,
+                          )),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 18),
+            Text(k.title,
+                style: TextStyle(
+                  color: AmirColors.muted.withValues(alpha: 0.9),
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1.2,
+                )),
+            const SizedBox(height: 4),
+            ShaderMask(
+              shaderCallback: (r) => AmirGradients.brandSoft.createShader(r),
+              child: AmirAnimatedCounter(
+                value: k.numeric,
+                prefix: k.prefix,
+                suffix: k.suffix,
+                fractionDigits: k.fractionDigits,
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: -0.6,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            RepaintBoundary(
+              child: SizedBox(
+                height: 36,
+                child: _Sparkline(seed: k.title.hashCode, gradient: k.gradient),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -637,3 +711,111 @@ class _QuickActionsCard extends StatelessWidget {
     );
   }
 }
+
+class _LiveStatusBar extends StatefulWidget {
+  const _LiveStatusBar();
+  @override
+  State<_LiveStatusBar> createState() => _LiveStatusBarState();
+}
+
+class _LiveStatusBarState extends State<_LiveStatusBar> {
+  late final Stream<DateTime> _tick;
+  @override
+  void initState() {
+    super.initState();
+    _tick = Stream.periodic(const Duration(seconds: 1), (_) => DateTime.now());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      decoration: BoxDecoration(
+        color: AmirColors.card.withValues(alpha: 0.55),
+        borderRadius: BorderRadius.circular(AmirRadius.pill),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+      ),
+      child: DefaultTextStyle(
+        style: TextStyle(
+          fontSize: 11.5,
+          letterSpacing: 1.4,
+          fontWeight: FontWeight.w700,
+          color: Colors.white.withValues(alpha: 0.85),
+          fontFamily: 'monospace',
+        ),
+        child: Row(
+          children: [
+            _StatusDot(color: AmirColors.success, label: 'API ONLINE'),
+            const SizedBox(width: 16),
+            _StatusDot(color: AmirColors.secondary, label: 'DB SYNCED'),
+            const SizedBox(width: 16),
+            _StatusDot(color: const Color(0xFF8B5CF6), label: 'AI READY'),
+            const Spacer(),
+            const Icon(Icons.business_outlined, size: 14, color: AmirColors.muted),
+            const SizedBox(width: 6),
+            const Text('TENANT · DEMO'),
+            const SizedBox(width: 16),
+            const Icon(Icons.schedule_rounded, size: 14, color: AmirColors.muted),
+            const SizedBox(width: 6),
+            StreamBuilder<DateTime>(
+              stream: _tick,
+              builder: (_, snap) {
+                final n = snap.data ?? DateTime.now();
+                final h = n.hour.toString().padLeft(2, '0');
+                final m = n.minute.toString().padLeft(2, '0');
+                final s = n.second.toString().padLeft(2, '0');
+                return Text('$h:$m:$s');
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _StatusDot extends StatefulWidget {
+  const _StatusDot({required this.color, required this.label});
+  final Color color;
+  final String label;
+  @override
+  State<_StatusDot> createState() => _StatusDotState();
+}
+
+class _StatusDotState extends State<_StatusDot> with SingleTickerProviderStateMixin {
+  late final AnimationController _c;
+  @override
+  void initState() {
+    super.initState();
+    _c = AnimationController(vsync: this, duration: const Duration(milliseconds: 1400))..repeat(reverse: true);
+  }
+  @override
+  void dispose() { _c.dispose(); super.dispose(); }
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        AnimatedBuilder(
+          animation: _c,
+          builder: (_, __) => Container(
+            width: 7, height: 7,
+            decoration: BoxDecoration(
+              color: widget.color,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: widget.color.withValues(alpha: 0.5 + 0.4 * _c.value),
+                  blurRadius: 4 + 6 * _c.value,
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Text(widget.label),
+      ],
+    );
+  }
+}
+
