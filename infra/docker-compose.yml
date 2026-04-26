@@ -1,0 +1,132 @@
+# Amir ERP — local dev infrastructure
+# Author: Amir Saoudi
+#
+#   pnpm compose:up
+#   pnpm compose:down
+#
+# Hostnames inside the compose network match the service names below.
+
+name: amir-erp
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: amir-erp-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: amir
+      POSTGRES_PASSWORD: amir
+      POSTGRES_DB: amir_erp
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - .volumes/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U amir -d amir_erp"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    container_name: amir-erp-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory-policy", "allkeys-lru"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - .volumes/redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  minio:
+    image: minio/minio:latest
+    container_name: amir-erp-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: amir
+      MINIO_ROOT_PASSWORD: amirminio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - .volumes/minio:/data
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  meilisearch:
+    image: getmeili/meilisearch:v1.10
+    container_name: amir-erp-meili
+    restart: unless-stopped
+    environment:
+      MEILI_MASTER_KEY: amir-meili-master-key-change-me
+      MEILI_ENV: development
+    ports:
+      - "7700:7700"
+    volumes:
+      - .volumes/meili:/meili_data
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: amir-erp-mailhog
+    restart: unless-stopped
+    ports:
+      - "1025:1025"   # SMTP
+      - "8025:8025"   # Web UI
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: amir-erp-prometheus
+    restart: unless-stopped
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - .volumes/prometheus:/prometheus
+    ports:
+      - "9090:9090"
+
+  loki:
+    image: grafana/loki:2.9.10
+    container_name: amir-erp-loki
+    restart: unless-stopped
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - ./loki/loki-config.yml:/etc/loki/local-config.yaml:ro
+      - .volumes/loki:/loki
+    ports:
+      - "3100:3100"
+
+  grafana:
+    image: grafana/grafana:11.2.0
+    container_name: amir-erp-grafana
+    restart: unless-stopped
+    depends_on: [prometheus, loki]
+    environment:
+      GF_SECURITY_ADMIN_USER: amir
+      GF_SECURITY_ADMIN_PASSWORD: amir
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - .volumes/grafana:/var/lib/grafana
+    ports:
+      - "3001:3000"
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: amir-erp-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - .volumes/caddy/data:/data
+      - .volumes/caddy/config:/config
+    depends_on: [grafana]

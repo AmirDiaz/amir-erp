@@ -1,0 +1,57 @@
+# Node / pnpm / turbo
+node_modules/
+dist/
+build/
+.next/
+.turbo/
+coverage/
+*.log
+*.tsbuildinfo
+.eslintcache
+
+# Env
+.env
+.env.*
+!.env.example
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.iml
+*.swp
+
+# Flutter / Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+**/ios/Pods/
+**/ios/.symlinks/
+**/android/.gradle/
+**/android/local.properties
+**/android/app/debug/
+**/android/app/profile/
+**/android/app/release/
+**/macos/Pods/
+**/windows/flutter/ephemeral/
+**/linux/flutter/ephemeral/
+
+# Prisma generated
+apps/backend/prisma/generated/
+apps/backend/src/prisma-client/
+
+# Docker volumes
+infra/.volumes/
+infra/.local/
+
+# Backend uploads (local dev)
+apps/backend/uploads/
+apps/backend/storage/
+
+# Test outputs
+playwright-report/
+test-results/

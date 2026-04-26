@@ -1,0 +1,50 @@
+{
+  "name": "amir-erp",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Amir ERP — modern multi-tenant SaaS ERP. Author: Amir Saoudi.",
+  "author": {
+    "name": "Amir Saoudi",
+    "email": "amirsaoudi620@gmail.com"
+  },
+  "license": "PROPRIETARY",
+  "packageManager": "pnpm@10.13.1",
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=10.0.0"
+  },
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,md,yaml,yml}\"",
+    "compose:up": "docker compose -f infra/docker-compose.yml up -d",
+    "compose:down": "docker compose -f infra/docker-compose.yml down",
+    "compose:logs": "docker compose -f infra/docker-compose.yml logs -f",
+    "compose:reset": "docker compose -f infra/docker-compose.yml down -v && docker compose -f infra/docker-compose.yml up -d",
+    "backend:dev": "pnpm --filter @amir-erp/backend dev",
+    "backend:build": "pnpm --filter @amir-erp/backend build",
+    "backend:migrate": "pnpm --filter @amir-erp/backend prisma:migrate",
+    "backend:seed": "pnpm --filter @amir-erp/backend seed",
+    "mobile:web": "cd apps/mobile && flutter run -d chrome",
+    "mobile:linux": "cd apps/mobile && flutter run -d linux",
+    "mobile:android": "cd apps/mobile && flutter run -d android",
+    "mobile:build:web": "cd apps/mobile && flutter build web --release"
+  },
+  "devDependencies": {
+    "prettier": "^3.4.2",
+    "turbo": "^2.3.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@nestjs/core",
+      "@prisma/client",
+      "@prisma/engines",
+      "argon2",
+      "prisma",
+      "msgpackr-extract"
+    ]
+  }
+}
