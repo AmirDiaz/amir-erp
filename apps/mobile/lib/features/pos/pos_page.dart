@@ -28,21 +28,22 @@ final _demoProducts = [
 ];
 
 class CartItem {
-  CartItem(this.product, this.qty);
+  const CartItem(this.product, this.qty);
   final PosProduct product;
-  int qty;
+  final int qty;
   double get total => product.price * qty;
+  CartItem copyWith({int? qty}) => CartItem(product, qty ?? this.qty);
 }
 
 final cartProvider = StateNotifierProvider<CartCtrl, List<CartItem>>((_) => CartCtrl());
 
 class CartCtrl extends StateNotifier<List<CartItem>> {
-  CartCtrl() : super([]);
+  CartCtrl() : super(const []);
   void add(PosProduct p) {
     final i = state.indexWhere((x) => x.product.id == p.id);
     if (i >= 0) {
       final list = [...state];
-      list[i].qty += 1;
+      list[i] = list[i].copyWith(qty: list[i].qty + 1);
       state = list;
     } else {
       state = [...state, CartItem(p, 1)];
@@ -51,18 +52,25 @@ class CartCtrl extends StateNotifier<List<CartItem>> {
   void inc(String id) {
     final list = [...state];
     final i = list.indexWhere((x) => x.product.id == id);
-    if (i >= 0) { list[i].qty += 1; state = list; }
+    if (i >= 0) {
+      list[i] = list[i].copyWith(qty: list[i].qty + 1);
+      state = list;
+    }
   }
   void dec(String id) {
     final list = [...state];
     final i = list.indexWhere((x) => x.product.id == id);
     if (i >= 0) {
-      if (list[i].qty <= 1) { state = list.where((x) => x.product.id != id).toList(); }
-      else { list[i].qty -= 1; state = list; }
+      if (list[i].qty <= 1) {
+        state = list.where((x) => x.product.id != id).toList();
+      } else {
+        list[i] = list[i].copyWith(qty: list[i].qty - 1);
+        state = list;
+      }
     }
   }
   void remove(String id) => state = state.where((x) => x.product.id != id).toList();
-  void clear() => state = [];
+  void clear() => state = const [];
 }
 
 class PosPage extends ConsumerStatefulWidget {
