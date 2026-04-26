@@ -27,7 +27,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   @override
   Widget build(BuildContext context) {
     final auth = ref.watch(authControllerProvider);
-    final isWide = MediaQuery.of(context).size.width >= 1000;
+    final screenW = MediaQuery.of(context).size.width;
+    final isWide = screenW >= 1000;
+    final cardW = isWide ? screenW.clamp(1000.0, 1100.0) : screenW.clamp(0.0, 460.0);
 
     return Scaffold(
       body: AmirAnimatedBackground(
@@ -35,8 +37,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           child: Center(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(AmirSpacing.lg),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: isWide ? 1080 : 460),
+              child: SizedBox(
+                width: cardW.toDouble(),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -54,10 +56,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   }
 
   Widget _wideLayout(AuthState auth) {
-    return AmirGlassCard(
-      padding: EdgeInsets.zero,
-      child: IntrinsicHeight(
+    return SizedBox(
+      height: 620,
+      child: AmirGlassCard(
+        padding: EdgeInsets.zero,
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Expanded(child: _hero()),
             Container(
@@ -75,8 +79,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               ),
             ),
             Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 56),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 40),
                 child: _form(auth, embedded: true),
               ),
             ),
@@ -88,7 +92,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   Widget _hero() {
     return Container(
-      padding: const EdgeInsets.all(48),
+      padding: const EdgeInsets.all(40),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -110,10 +114,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             child: const Text(
               'Run your business at\nthe speed of light.',
               style: TextStyle(
-                fontSize: 40,
+                fontSize: 34,
                 fontWeight: FontWeight.w900,
                 color: Colors.white,
-                letterSpacing: -1.5,
+                letterSpacing: -1.2,
                 height: 1.05,
               ),
             ),
