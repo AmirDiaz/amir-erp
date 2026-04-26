@@ -712,19 +712,8 @@ class _QuickActionsCard extends StatelessWidget {
   }
 }
 
-class _LiveStatusBar extends StatefulWidget {
+class _LiveStatusBar extends StatelessWidget {
   const _LiveStatusBar();
-  @override
-  State<_LiveStatusBar> createState() => _LiveStatusBarState();
-}
-
-class _LiveStatusBarState extends State<_LiveStatusBar> {
-  late final Stream<DateTime> _tick;
-  @override
-  void initState() {
-    super.initState();
-    _tick = Stream.periodic(const Duration(seconds: 1), (_) => DateTime.now());
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -744,29 +733,26 @@ class _LiveStatusBarState extends State<_LiveStatusBar> {
           fontFamily: 'monospace',
         ),
         child: Row(
-          children: [
-            _StatusDot(color: AmirColors.success, label: 'API ONLINE'),
-            const SizedBox(width: 16),
-            _StatusDot(color: AmirColors.secondary, label: 'DB SYNCED'),
-            const SizedBox(width: 16),
-            _StatusDot(color: const Color(0xFF8B5CF6), label: 'AI READY'),
-            const Spacer(),
-            const Icon(Icons.business_outlined, size: 14, color: AmirColors.muted),
-            const SizedBox(width: 6),
-            const Text('TENANT · DEMO'),
-            const SizedBox(width: 16),
-            const Icon(Icons.schedule_rounded, size: 14, color: AmirColors.muted),
-            const SizedBox(width: 6),
-            StreamBuilder<DateTime>(
-              stream: _tick,
-              builder: (_, snap) {
-                final n = snap.data ?? DateTime.now();
-                final h = n.hour.toString().padLeft(2, '0');
-                final m = n.minute.toString().padLeft(2, '0');
-                final s = n.second.toString().padLeft(2, '0');
-                return Text('$h:$m:$s');
-              },
-            ),
+          children: const [
+            AmirPulseDot(color: AmirColors.success),
+            SizedBox(width: 8),
+            Text('API ONLINE'),
+            SizedBox(width: 16),
+            _StaticDot(color: AmirColors.secondary),
+            SizedBox(width: 8),
+            Text('DB SYNCED'),
+            SizedBox(width: 16),
+            _StaticDot(color: Color(0xFF8B5CF6)),
+            SizedBox(width: 8),
+            Text('AI READY'),
+            Spacer(),
+            Icon(Icons.business_outlined, size: 14, color: AmirColors.muted),
+            SizedBox(width: 6),
+            Text('TENANT · DEMO'),
+            SizedBox(width: 16),
+            Icon(Icons.bolt_outlined, size: 14, color: AmirColors.muted),
+            SizedBox(width: 6),
+            Text('BUILD · 2026.04'),
           ],
         ),
       ),
@@ -774,47 +760,21 @@ class _LiveStatusBarState extends State<_LiveStatusBar> {
   }
 }
 
-class _StatusDot extends StatefulWidget {
-  const _StatusDot({required this.color, required this.label});
+class _StaticDot extends StatelessWidget {
+  const _StaticDot({required this.color});
   final Color color;
-  final String label;
-  @override
-  State<_StatusDot> createState() => _StatusDotState();
-}
-
-class _StatusDotState extends State<_StatusDot> with SingleTickerProviderStateMixin {
-  late final AnimationController _c;
-  @override
-  void initState() {
-    super.initState();
-    _c = AnimationController(vsync: this, duration: const Duration(milliseconds: 1400))..repeat(reverse: true);
-  }
-  @override
-  void dispose() { _c.dispose(); super.dispose(); }
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        AnimatedBuilder(
-          animation: _c,
-          builder: (_, __) => Container(
-            width: 7, height: 7,
-            decoration: BoxDecoration(
-              color: widget.color,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: widget.color.withValues(alpha: 0.5 + 0.4 * _c.value),
-                  blurRadius: 4 + 6 * _c.value,
-                ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Text(widget.label),
-      ],
+    return Container(
+      width: 7,
+      height: 7,
+      decoration: BoxDecoration(
+        color: color,
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(color: color.withValues(alpha: 0.55), blurRadius: 6),
+        ],
+      ),
     );
   }
 }

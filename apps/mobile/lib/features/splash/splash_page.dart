@@ -56,18 +56,16 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
                           child: const AmirLogo(size: 120),
                         ),
                         const SizedBox(height: AmirSpacing.lg),
-                        AmirShimmer(
-                          child: ShaderMask(
-                            shaderCallback: (r) => AmirGradients.brandSoft.createShader(r),
-                            child: Text(
-                              AmirBranding.appName,
-                              style: const TextStyle(
-                                fontSize: 56,
-                                fontWeight: FontWeight.w900,
-                                color: Colors.white,
-                                letterSpacing: -1.8,
-                                height: 1,
-                              ),
+                        ShaderMask(
+                          shaderCallback: (r) => AmirGradients.brandSoft.createShader(r),
+                          child: Text(
+                            AmirBranding.appName,
+                            style: const TextStyle(
+                              fontSize: 56,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.white,
+                              letterSpacing: -1.8,
+                              height: 1,
                             ),
                           ),
                         ),

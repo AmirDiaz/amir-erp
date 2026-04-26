@@ -154,11 +154,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         children: [
           Row(
             children: [
-              AmirGlowPulse(
-                color: AmirColors.primary,
-                borderRadius: BorderRadius.circular(20),
-                child: const AmirLogo(size: 56, glow: false),
-              ),
+              const AmirLogo(size: 56, glow: true),
               const SizedBox(width: 14),
               Expanded(
                 child: Column(
@@ -259,11 +255,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       children: [
         Row(
           children: [
-            AmirGlowPulse(
-              color: AmirColors.primary,
-              borderRadius: BorderRadius.circular(16),
-              child: const AmirLogo(size: 48, glow: false),
-            ),
+            const AmirLogo(size: 48, glow: true),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
