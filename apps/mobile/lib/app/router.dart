@@ -20,13 +20,16 @@ import '../features/settings/settings_page.dart';
 import '../features/splash/splash_page.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
-  final auth = ref.watch(authControllerProvider);
+  final notifier = ref.watch(authControllerProvider.notifier);
   return GoRouter(
     initialLocation: '/',
+    refreshListenable: notifier,
     redirect: (ctx, st) {
+      final auth = ref.read(authControllerProvider);
       if (auth.status == AuthStatus.unknown) return null;
       final loggedIn = auth.status == AuthStatus.authenticated;
       final loggingIn = st.matchedLocation == '/login';
+      if (!loggedIn && st.matchedLocation == '/') return '/login';
       if (!loggedIn && !loggingIn && st.matchedLocation != '/') return '/login';
       if (loggedIn && (loggingIn || st.matchedLocation == '/')) return '/dashboard';
       return null;
