@@ -20,7 +20,7 @@ class AmirErpApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       theme: AmirTheme.light(),
       darkTheme: AmirTheme.dark(),
-      themeMode: ThemeMode.system,
+      themeMode: ThemeMode.dark,
       routerConfig: router,
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
