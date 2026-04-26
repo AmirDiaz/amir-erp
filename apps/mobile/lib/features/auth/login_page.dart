@@ -41,6 +41,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 width: cardW.toDouble(),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     isWide ? _wideLayout(auth) : _form(auth),
                     const SizedBox(height: AmirSpacing.lg),
