@@ -25,7 +25,7 @@ dependencies:
   shared_preferences: ^2.3.3
 
   # i18n / RTL
-  intl: ^0.19.0
+  intl: ^0.20.2
 
   # design + utils
   google_fonts: ^6.2.1
