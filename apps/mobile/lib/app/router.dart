@@ -19,11 +19,26 @@ import '../features/sales/sales_page.dart';
 import '../features/settings/settings_page.dart';
 import '../features/splash/splash_page.dart';
 
+class _AuthListenable extends ChangeNotifier {
+  _AuthListenable(Ref ref) {
+    _sub = ref.listen<AuthState>(authControllerProvider, (_, __) {
+      notifyListeners();
+    }, fireImmediately: false);
+  }
+  late final ProviderSubscription<AuthState> _sub;
+  @override
+  void dispose() {
+    _sub.close();
+    super.dispose();
+  }
+}
+
 final routerProvider = Provider<GoRouter>((ref) {
-  final notifier = ref.watch(authControllerProvider.notifier);
+  final listenable = _AuthListenable(ref);
+  ref.onDispose(listenable.dispose);
   return GoRouter(
     initialLocation: '/',
-    refreshListenable: notifier,
+    refreshListenable: listenable,
     redirect: (ctx, st) {
       final auth = ref.read(authControllerProvider);
       if (auth.status == AuthStatus.unknown) return null;
