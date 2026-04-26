@@ -41,7 +41,7 @@ export const configSchema = Joi.object({
 
   RATE_LIMIT_TTL: Joi.number().default(60),
   RATE_LIMIT_MAX: Joi.number().default(120),
-  CORS_ORIGINS: Joi.string().default('http://localhost:8080'),
+  CORS_ORIGINS: Joi.string().allow('').default(''),
 
   LOG_LEVEL: Joi.string().valid('debug', 'info', 'warn', 'error').default('info'),
   ENABLE_METRICS: Joi.boolean().default(true),
