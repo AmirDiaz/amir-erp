@@ -136,7 +136,8 @@ class _Kpi {
     this.title,
     this.numeric,
     this.delta,
-    this.up,
+    this.positive,
+    this.directionUp,
     this.icon,
     this.gradient, {
     this.prefix = '',
@@ -146,7 +147,10 @@ class _Kpi {
   final String title;
   final double numeric;
   final String delta;
-  final bool up;
+  /// Whether the trend is good (green) or bad (red).
+  final bool positive;
+  /// Whether the arrow points up or down (independent of sentiment).
+  final bool directionUp;
   final IconData icon;
   final Gradient gradient;
   final String prefix;
@@ -161,12 +165,13 @@ class _KpiGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const items = [
-      _Kpi('REVENUE · MTD', 124500, '+12.4%', true, Icons.trending_up_rounded, AmirGradients.brand, prefix: '\$ '),
-      _Kpi('OPEN INVOICES', 32, '-3', true, Icons.receipt_long_rounded, AmirGradients.success),
-      _Kpi('ACTIVE ORDERS', 17, '+5', true, Icons.shopping_cart_rounded, AmirGradients.brandSoft),
-      _Kpi('INVENTORY VALUE', 412890, '+2.1%', true, Icons.inventory_rounded, AmirGradients.accent, prefix: '\$ '),
-      _Kpi('POS SESSIONS', 3, 'LIVE', true, Icons.point_of_sale_rounded, AmirGradients.brand),
-      _Kpi('EMPLOYEES', 48, '+2', true, Icons.groups_rounded, AmirGradients.success),
+      _Kpi('REVENUE · MTD', 124500, '+12.4%', true, true, Icons.trending_up_rounded, AmirGradients.brand, prefix: '\$ '),
+      // Open invoices going down is a GOOD thing (green) but the arrow points down.
+      _Kpi('OPEN INVOICES', 32, '-3', true, false, Icons.receipt_long_rounded, AmirGradients.success),
+      _Kpi('ACTIVE ORDERS', 17, '+5', true, true, Icons.shopping_cart_rounded, AmirGradients.brandSoft),
+      _Kpi('INVENTORY VALUE', 412890, '+2.1%', true, true, Icons.inventory_rounded, AmirGradients.accent, prefix: '\$ '),
+      _Kpi('POS SESSIONS', 3, 'LIVE', true, true, Icons.point_of_sale_rounded, AmirGradients.brand),
+      _Kpi('EMPLOYEES', 48, '+2', true, true, Icons.groups_rounded, AmirGradients.success),
     ];
     final cols = wide ? 4 : MediaQuery.of(context).size.width > 700 ? 3 : 2;
     return LayoutBuilder(builder: (_, c) {
@@ -244,23 +249,23 @@ class _KpiCardState extends State<_KpiCard> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
-                    color: (k.up ? AmirColors.success : AmirColors.danger).withValues(alpha: 0.12),
+                    color: (k.positive ? AmirColors.success : AmirColors.danger).withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(AmirRadius.pill),
                     border: Border.all(
-                      color: (k.up ? AmirColors.success : AmirColors.danger).withValues(alpha: 0.35),
+                      color: (k.positive ? AmirColors.success : AmirColors.danger).withValues(alpha: 0.35),
                     ),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
-                        k.up ? Icons.arrow_upward_rounded : Icons.arrow_downward_rounded,
-                        size: 11, color: k.up ? AmirColors.success : AmirColors.danger,
+                        k.directionUp ? Icons.arrow_upward_rounded : Icons.arrow_downward_rounded,
+                        size: 11, color: k.positive ? AmirColors.success : AmirColors.danger,
                       ),
                       const SizedBox(width: 3),
                       Text(k.delta,
                           style: TextStyle(
-                            color: k.up ? AmirColors.success : AmirColors.danger,
+                            color: k.positive ? AmirColors.success : AmirColors.danger,
                             fontSize: 10.5, fontWeight: FontWeight.w700,
                           )),
                     ],
