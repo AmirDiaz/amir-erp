@@ -40,7 +40,7 @@ class AmirTheme {
         brightness: Brightness.light,
       ),
       textTheme: GoogleFonts.interTextTheme(base.textTheme),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 0,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AmirRadius.lg)),
         color: Colors.white,
