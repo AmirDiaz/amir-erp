@@ -306,7 +306,11 @@ class _NavTile extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 1),
       child: InkWell(
-        onTap: () => context.go(item.route),
+        onTap: () {
+          final scaffold = Scaffold.maybeOf(context);
+          if (scaffold != null && scaffold.isDrawerOpen) scaffold.closeDrawer();
+          context.go(item.route);
+        },
         borderRadius: BorderRadius.circular(AmirRadius.md),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 180),
@@ -404,6 +408,31 @@ class _Drawer extends ConsumerWidget {
                     for (final it in s.items) _NavTile(item: it, currentRoute: currentRoute),
                   ],
                 ],
+              ),
+            ),
+            const Divider(height: 1),
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: InkWell(
+                onTap: () {
+                  Navigator.of(context).pop();
+                  ref.read(authControllerProvider.notifier).logout();
+                },
+                borderRadius: BorderRadius.circular(AmirRadius.md),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: AmirColors.surfaceAlt.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(AmirRadius.md),
+                  ),
+                  child: Row(
+                    children: const [
+                      Icon(Icons.logout_rounded, size: 18, color: AmirColors.muted),
+                      SizedBox(width: 12),
+                      Text('Sign out', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                    ],
+                  ),
+                ),
               ),
             ),
           ],
